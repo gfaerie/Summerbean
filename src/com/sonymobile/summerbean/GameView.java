@@ -87,7 +87,8 @@ public class GameView extends View {
 						- gameObject.getKey().getySize()), paint);
 			}
 			paint.setColor(Color.BLACK);
-			canvas.drawText("Score: "+gameEngine.getScore(), 0, gameEngine.getySize()-50, paint);
+			paint.setTextSize(50);
+			canvas.drawText(String.valueOf(gameEngine.getScore()), 0, gameEngine.getySize(), paint);
 		}
 	}
 

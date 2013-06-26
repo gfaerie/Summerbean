@@ -8,6 +8,17 @@ public class SummerBean extends Activity {
 
 	private GameView gameView;
 
+	private static SummerBean sbActivity;
+
+	public SummerBean() {
+		super();
+		sbActivity = this;
+	}
+
+	public static SummerBean getSbActivity() {
+		return sbActivity;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -34,4 +45,11 @@ public class SummerBean extends Activity {
 		gameView.pause();
 	}
 
+	public GameView getGameView() {
+		return gameView;
+	}
+
+	public void setGameView(GameView gameView) {
+		this.gameView = gameView;
+	}
 }

@@ -8,6 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Random;
 import java.util.Set;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 public class GameEngine {
 
 	private AtomicInteger atomicInteger = new AtomicInteger();
@@ -24,8 +27,8 @@ public class GameEngine {
 		this.ySize = ySize;
 		addPlayer();
 	}
-	
-	private void addPlayer(){
+
+	private void addPlayer() {
 		this.player = new GameObject(GameObject.GAME_OBJECT_PLAYER, 0, 35, 45);
 		gameObjects.put(player, new GameObjectMetadata(null, new Position(
 				xSize / 2, (long) (ySize * 0.9))));
@@ -58,16 +61,16 @@ public class GameEngine {
 						|| newPosition.getX() < -100
 						|| newPosition.getY() < -100
 						|| newPosition.getY() > (ySize + 100)) {
-					if(entry.getKey().getCategory()==1){
-reset();
-}
+					if (entry.getKey().getCategory() == 1) {
+						reset();
+					}
 					toBeRemoved.add(entry.getKey());
 				}
 			}
 		}
 		toBeRemoved.addAll(collisionDetector.getCollision(gameObjects));
 		for (GameObject gameObject : toBeRemoved) {
-			if(gameObject.getCategory()==1){
+			if (gameObject.getCategory() == 1) {
 				atomicInteger.incrementAndGet();
 			}
 			gameObjects.remove(gameObject);
@@ -75,10 +78,10 @@ reset();
 	}
 
 	public void addClouds() {
-		if (random.nextInt(100) > 96) {
+		if (random.nextInt(100) > 98) {
 			long startY = random.nextInt(100) - 50;
 			long startX = random.nextBoolean() ? -100 : xSize + 100;
-			long xSpeed = (startX > 0 ? -1 : 1) * (random.nextInt(5) + 1);
+			long xSpeed = (startX > 0 ? -1 : 1) * (random.nextInt(2) + 2);
 			GameObject gameObject = new GameObject(GameObject.GAME_OBJECT_MOLN,
 					0, 1, 1);
 			Position position = new Position(startX, startY);
@@ -94,13 +97,14 @@ reset();
 		for (Entry<GameObject, GameObjectMetadata> entry : gameObjects
 				.entrySet()) {
 			if (entry.getKey().getGraphicsId() == GameObject.GAME_OBJECT_MOLN) {
-				if (random.nextInt(1000) > 985) {
+				Position molnPosition = entry.getValue().getPosition();
+				if (molnPosition.getX() > 0 && molnPosition.getX() < xSize
+						&& random.nextInt(1000) > 992) {
 					long ySpeed = (random.nextInt(7) + 1);
 					GameObject gameObject = new GameObject(
 							GameObject.GAME_OBJECT_REGN, 1, 25, 25);
-					Position position = new Position(entry.getValue()
-							.getPosition().getX(), entry.getValue()
-							.getPosition().getY() + 30);
+					Position position = new Position(molnPosition.getX(),
+							molnPosition.getY() + 30);
 					Movement movement = new LinearMovement(0, ySpeed);
 					newObjects.put(gameObject, new GameObjectMetadata(movement,
 							position));
@@ -117,21 +121,40 @@ reset();
 	public long getySize() {
 		return ySize;
 	}
-	
-	public Position getPlayerPosition(){
+
+	public Position getPlayerPosition() {
 		return gameObjects.get(player).getPosition();
 	}
-	
-	public int getScore(){
+
+	public int getScore() {
 		return atomicInteger.get();
 	}
-	
-	public boolean isGameOver(){
+
+	public boolean isGameOver() {
 		return gameOver;
 	}
-	
-	public void reset(){
-		atomicInteger.set(0);
+
+	public void reset() {
+		SummerBean mainActivity = SummerBean.getSbActivity();
+		mainActivity.getGameView().pause();
+		AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+		builder.setMessage("Play a new game?\nScore: " + atomicInteger.get())
+		       .setCancelable(false)
+		       .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		        	   SummerBean.getSbActivity().finish();
+		           }
+		       })
+		       .setNegativeButton("New Game", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		        	   atomicInteger.set(0);
+		        	   SummerBean.getSbActivity().getGameView().resume();
+		           }
+		       });
+		AlertDialog alert = builder.create();
+		alert.show();
+		
+		
 	}
 
 }
